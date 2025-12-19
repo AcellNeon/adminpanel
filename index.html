@@ -14,11 +14,27 @@
       margin: 0;
       padding: 0;
       height: 100vh;
-      background: url('anjai.jpg') no-repeat center center/cover;
       display: flex;
       justify-content: center;
       align-items: center;
-      animation: fadeBg 1.2s ease forwards;
+
+      /* Gradient berjalan */
+      background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fbc2eb, #a6c1ee);
+      background-size: 400% 400%;
+      animation: gradientMove 15s ease infinite;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Overlay transparan */
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.3); /* lapisan gelap transparan */
+      backdrop-filter: blur(2px);   /* blur halus */
+      z-index: 0;
     }
 
     .container {
@@ -32,6 +48,8 @@
       opacity: 0;
       transform: translateY(40px);
       animation: fadeSlideIn 0.8s ease forwards;
+      z-index: 1; /* pastikan di atas overlay */
+      position: relative;
     }
 
     h1, h2 {
@@ -117,9 +135,10 @@
       from { opacity: 0; transform: translateY(40px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    @keyframes fadeBg {
-      from { filter: brightness(0.6); }
-      to { filter: brightness(1); }
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
     @keyframes fadeIn {
       from { opacity: 0; }
