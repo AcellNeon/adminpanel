@@ -15,8 +15,6 @@
       padding: 0;
       height: 100vh;
       display: flex;
-      justify-content: center;
-      align-items: center;
 
       /* Gradient berjalan */
       background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fbc2eb, #a6c1ee);
@@ -32,14 +30,55 @@
       position: absolute;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: rgba(0,0,0,0.3); /* lapisan gelap transparan */
-      backdrop-filter: blur(2px);   /* blur halus */
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(2px);
       z-index: 0;
     }
 
+    /* Sidebar */
+    .sidebar {
+      width: 220px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+      z-index: 1;
+      position: relative;
+      animation: slideIn 0.8s ease forwards;
+    }
+    .sidebar h2 {
+      color: #fff;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .sidebar a {
+      display: block;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 8px;
+      color: #fff;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+    .sidebar a:hover {
+      background: rgba(255,255,255,0.2);
+      transform: translateX(5px);
+    }
+
+    /* Main content */
+    .main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px;
+      z-index: 1;
+      position: relative;
+    }
+
     .container {
-      max-width: 700px;
-      width: 90%;
+      max-width: 800px;
+      width: 100%;
       background: rgba(255,255,255,0.1);
       backdrop-filter: blur(12px);
       padding: 30px;
@@ -48,8 +87,6 @@
       opacity: 0;
       transform: translateY(40px);
       animation: fadeSlideIn 0.8s ease forwards;
-      z-index: 1; /* pastikan di atas overlay */
-      position: relative;
     }
 
     h1, h2 {
@@ -59,7 +96,7 @@
       text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
     }
 
-    input {
+    input, select {
       width: 100%;
       padding: 12px;
       margin: 10px 0;
@@ -91,10 +128,6 @@
       box-shadow: 0 6px 15px rgba(0,0,0,0.3);
       background: linear-gradient(135deg, #fbc2eb, #a6c1ee);
     }
-    button:active {
-      transform: scale(0.95);
-      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-    }
 
     table {
       width: 100%;
@@ -124,7 +157,7 @@
       transform: scale(1.1);
     }
 
-    #loginStatus {
+    #loginStatus, #addStatus {
       text-align: center;
       color: #ff8080;
       font-weight: bold;
@@ -144,32 +177,75 @@
       from { opacity: 0; }
       to { opacity: 1; }
     }
+    @keyframes slideIn {
+      from { transform: translateX(-220px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
   </style>
 </head>
 <body>
-  <div class="container" id="loginBox">
-    <h1>Admin Login</h1>
-    <input type="text" id="adminUser" placeholder="Username">
-    <input type="password" id="adminPass" placeholder="Password">
-    <button onclick="adminLogin()">Login</button>
-    <p id="loginStatus"></p>
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar" style="display:none;">
+    <h2>Admin Menu</h2>
+    <a href="#" onclick="showSection('dashboard')">Dashboard</a>
+    <a href="#" onclick="showSection('stats')">Statistik</a>
+    <a href="#" onclick="showSection('logs')">Log Aktivitas</a>
   </div>
 
-  <div class="container" id="adminPanel" style="display:none;">
-    <h2>Admin Panel</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Username</th>
-          <th>Role</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="userTable"></tbody>
-    </table>
+  <!-- Main content -->
+  <div class="main">
+    <!-- Login -->
+    <div class="container" id="loginBox">
+      <h1>Admin Login</h1>
+      <input type="text" id="adminUser" placeholder="Username">
+      <input type="password" id="adminPass" placeholder="Password">
+      <button onclick="adminLogin()">Login</button>
+      <p id="loginStatus"></p>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="container" id="adminPanel" style="display:none;">
+      <h2>Admin Panel</h2>
+
+      <!-- Form tambah akun -->
+      <h3>Tambah Akun User</h3>
+      <input type="text" id="newUsername" placeholder="Username">
+      <input type="password" id="newPin" maxlength="4" placeholder="4 digit PIN">
+      <select id="newRole">
+        <option value="user">User</option>
+        <option value="admin">Admin</option>
+      </select>
+      <button onclick="addUser()">Tambah Akun</button>
+      <p id="addStatus"></p>
+
+      <!-- Tabel user -->
+      <table>
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="userTable"></tbody>
+      </table>
+    </div>
+
+    <!-- Statistik -->
+    <div class="container" id="statsPanel" style="display:none;">
+      <h2>Statistik</h2>
+      <p>📊 Statistik pengguna akan ditampilkan di sini.</p>
+    </div>
+
+    <!-- Log Aktivitas -->
+    <div class="container" id="logsPanel" style="display:none;">
+      <h2>Log Aktivitas</h2>
+      <p>📝 Log aktivitas admin & user akan ditampilkan di sini.</p>
+    </div>
   </div>
 
-  <script>
+    <script>
+    // Firebase init
     const firebaseConfig = {
       apiKey: "AIzaSyA-sLBXum9oj1mpDp7rPn4--q3LCBQtMnI",
       authDomain: "loginpage-e42a7.firebaseapp.com",
@@ -182,21 +258,95 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    // Admin credential (gunakan yang kamu pakai)
     const ADMIN_USERNAME = "acellneon";
     const ADMIN_PASSWORD = "0110";
 
+    // State aktif panel
+    let activeSection = "dashboard";
+
+    // Login admin
     function adminLogin() {
       const user = document.getElementById("adminUser").value.trim();
       const pass = document.getElementById("adminPass").value.trim();
+
       if (user === ADMIN_USERNAME && pass === ADMIN_PASSWORD) {
         document.getElementById("loginBox").style.display = "none";
         document.getElementById("adminPanel").style.display = "block";
+        document.getElementById("sidebar").style.display = "block";
+        showSection("dashboard");
         loadUsers();
+        renderStats();
+        logActivity("admin_login", { by: ADMIN_USERNAME });
       } else {
         document.getElementById("loginStatus").innerText = "Login gagal!";
       }
     }
 
+    // Navigasi sidebar
+    function showSection(section) {
+      activeSection = section;
+
+      // Sembunyikan semua panel
+      document.getElementById("adminPanel").style.display = "none";
+      document.getElementById("statsPanel").style.display = "none";
+      document.getElementById("logsPanel").style.display = "none";
+
+      // Tampilkan sesuai menu
+      if (section === "dashboard") {
+        document.getElementById("adminPanel").style.display = "block";
+        loadUsers();
+      } else if (section === "stats") {
+        document.getElementById("statsPanel").style.display = "block";
+        renderStats();
+      } else if (section === "logs") {
+        document.getElementById("logsPanel").style.display = "block";
+        renderLogs();
+      }
+    }
+
+    // Tambah user dari admin panel
+    async function addUser() {
+      const username = document.getElementById("newUsername").value.trim();
+      const pin = document.getElementById("newPin").value.trim();
+      const role = document.getElementById("newRole").value;
+      const statusEl = document.getElementById("addStatus");
+
+      statusEl.innerText = "";
+
+      if (!username || pin.length !== 4) {
+        statusEl.innerText = "Isi username dan PIN 4 digit.";
+        return;
+      }
+
+      try {
+        const snap = await db.ref("users/" + username).get();
+        if (snap.exists()) {
+          statusEl.innerText = "Username sudah dipakai.";
+          return;
+        }
+
+        await db.ref("users/" + username).set({
+          pin: pin,        // untuk demo. Pertimbangkan hashing di produksi.
+          role: role,
+          createdAt: Date.now()
+        });
+
+        statusEl.innerText = "Akun berhasil ditambahkan.";
+        document.getElementById("newUsername").value = "";
+        document.getElementById("newPin").value = "";
+        document.getElementById("newRole").value = "user";
+
+        loadUsers();
+        renderStats();
+        logActivity("user_added", { by: ADMIN_USERNAME, username, role });
+      } catch (err) {
+        console.error(err);
+        statusEl.innerText = "Terjadi error saat menambahkan akun.";
+      }
+    }
+
+    // Muat daftar user
     function loadUsers() {
       db.ref("users").once("value").then(snapshot => {
         const table = document.getElementById("userTable");
@@ -207,20 +357,103 @@
           tr.innerHTML = `
             <td>${child.key}</td>
             <td>${data.role}</td>
-            <td><button class="delete-btn" onclick="deleteUser('${child.key}')">Delete</button></td>
+            <td>
+              <button class="delete-btn" onclick="deleteUser('${child.key}')">Delete</button>
+            </td>
           `;
           table.appendChild(tr);
         });
-      });
+      }).catch(err => console.error(err));
     }
 
+    // Hapus user
     function deleteUser(username) {
       if (confirm("Hapus akun " + username + "?")) {
         db.ref("users/" + username).remove().then(() => {
           alert("Akun " + username + " dihapus.");
           loadUsers();
-        });
+          renderStats();
+          logActivity("user_deleted", { by: ADMIN_USERNAME, username });
+        }).catch(err => console.error(err));
       }
+    }
+
+    // Log aktivitas sederhana
+    function logActivity(type, data = {}) {
+      const entry = {
+        type,
+        data,
+        at: Date.now(),
+        by: data.by || ADMIN_USERNAME
+      };
+      db.ref("logs").push(entry).catch(err => console.error(err));
+    }
+
+    // Render statistik sederhana
+    function renderStats() {
+      db.ref("users").once("value").then(snapshot => {
+        let total = 0, adminCount = 0, userCount = 0;
+        snapshot.forEach(child => {
+          total++;
+          const role = child.val().role;
+          if (role === "admin") adminCount++;
+          else userCount++;
+        });
+
+        const statsPanel = document.getElementById("statsPanel");
+        statsPanel.innerHTML = `
+          <h2>Statistik</h2>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+            <div style="background:rgba(255,255,255,0.12);padding:16px;border-radius:12px;">
+              <h3 style="margin:0;color:#fff;">Total Akun</h3>
+              <p style="font-size:24px;margin:8px 0;color:#fff;">${total}</p>
+            </div>
+            <div style="background:rgba(255,255,255,0.12);padding:16px;border-radius:12px;">
+              <h3 style="margin:0;color:#fff;">Admin</h3>
+              <p style="font-size:24px;margin:8px 0;color:#fff;">${adminCount}</p>
+            </div>
+            <div style="background:rgba(255,255,255,0.12);padding:16px;border-radius:12px;">
+              <h3 style="margin:0;color:#fff;">User</h3>
+              <p style="font-size:24px;margin:8px 0;color:#fff;">${userCount}</p>
+            </div>
+          </div>
+        `;
+      }).catch(err => console.error(err));
+    }
+
+    // Render log aktivitas
+    function renderLogs() {
+      db.ref("logs").limitToLast(50).once("value").then(snapshot => {
+        const logsPanel = document.getElementById("logsPanel");
+        let html = `
+          <h2>Log Aktivitas</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Waktu</th>
+                <th>Tipe</th>
+                <th>Detail</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+        const rows = [];
+        snapshot.forEach(child => {
+          const log = child.val();
+          const time = new Date(log.at).toLocaleString();
+          const detail = JSON.stringify(log.data || {});
+          rows.push(`
+            <tr>
+              <td>${time}</td>
+              <td>${log.type}</td>
+              <td style="font-size:12px;">${detail}</td>
+            </tr>
+          `);
+        });
+        rows.reverse(); // terbaru di atas
+        html += rows.join("") + "</tbody></table>";
+        logsPanel.innerHTML = html;
+      }).catch(err => console.error(err));
     }
   </script>
 </body>
