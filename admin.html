@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', Helvetica, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: url('anjai.jpg') no-repeat center center/cover;
+      color: white;
+    }
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+      background: rgba(0,0,0,0.6);
+      padding: 20px;
+      border-radius: 10px;
+      backdrop-filter: blur(8px);
+    }
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 6px;
+      border: none;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      text-align: center;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #ff9a9e, #fbc2eb);
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover { transform: scale(1.05); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.3);
+    }
+    .delete-btn {
+      background: #e74c3c;
+    }
+    .delete-btn:hover {
+      background: #c0392b;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="loginBox">
+    <h1>Admin Login</h1>
+    <input type="text" id="adminUser" placeholder="Username">
+    <input type="password" id="adminPass" placeholder="Password">
+    <button onclick="adminLogin()">Login</button>
+    <p id="loginStatus"></p>
+  </div>
+
+  <div class="container" id="adminPanel" style="display:none;">
+    <h2>Admin Panel</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Role</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="userTable"></tbody>
+    </table>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyA-sLBXum9oj1mpDp7rPn4--q3LCBQtMnI",
+      authDomain: "loginpage-e42a7.firebaseapp.com",
+      databaseURL: "https://loginpage-e42a7-default-rtdb.asia-southeast1.firebasedatabase.app/",
+      projectId: "loginpage-e42a7",
+      storageBucket: "loginpage-e42a7.firebasestorage.app",
+      messagingSenderId: "535312484754",
+      appId: "1:535312484754:web:273829b9dff1ae9715594b"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Hardcoded admin login (username & password)
+    const ADMIN_USERNAME = "acellneon";
+    const ADMIN_PASSWORD = "0110"; // bisa diganti password lebih panjang
+
+    function adminLogin() {
+      const user = document.getElementById("adminUser").value.trim();
+      const pass = document.getElementById("adminPass").value.trim();
+      if (user === ADMIN_USERNAME && pass === ADMIN_PASSWORD) {
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("adminPanel").style.display = "block";
+        loadUsers();
+      } else {
+        document.getElementById("loginStatus").innerText = "Login gagal!";
+      }
+    }
+
+    function loadUsers() {
+      db.ref("users").once("value").then(snapshot => {
+        const table = document.getElementById("userTable");
+        table.innerHTML = "";
+        snapshot.forEach(child => {
+          const data = child.val();
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${child.key}</td>
+            <td>${data.role}</td>
+            <td><button class="delete-btn" onclick="deleteUser('${child.key}')">Delete</button></td>
+          `;
+          table.appendChild(tr);
+        });
+      });
+    }
+
+    function deleteUser(username) {
+      if (confirm("Hapus akun " + username + "?")) {
+        db.ref("users/" + username).remove().then(() => {
+          alert("Akun " + username + " dihapus.");
+          loadUsers();
+        });
+      }
+    }
+  </script>
+</body>
+</html>
